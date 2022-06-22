@@ -198,7 +198,7 @@ const Content = () => {
       const interval = setInterval(() => {
         const x = new Date().getTime();
         contentSpringApi.start({
-          x: Math.cos(x * scalar) * 12 ** 2,
+          x: Math.cos(x * scalar) * 8 ** 2,
           y: Math.sin(x * scalar) * 8 ** 2,
         });
       }, 100);
@@ -278,9 +278,7 @@ const Content = () => {
             </a.div>
           )}
           <div className="grid text-center items-center justify-items-center content-center justify-center h-full">
-            <div className="h-0 absolute top-0">
-              <img src="https://www.w3schools.com/html/img_girl.jpg" alt="" />
-            </div>
+            <div className="h-0 absolute top-0">porn goes here lul</div>
           </div>
           <div className="absolute bottom-0 mx-12 my-12">
             {colorOpen && (
