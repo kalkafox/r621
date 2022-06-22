@@ -12,8 +12,11 @@ import {
   faPaintbrush,
   faComputerMouse,
   faClockRotateLeft,
+  faCircle,
+  faPencil,
 } from "@fortawesome/free-solid-svg-icons";
-import { rgbToHex } from "@mui/material";
+import { LinearProgress, rgbToHex } from "@mui/material";
+import Notification from "./Notification";
 
 const updateSpring = (spring, modifier, state = true) => {
   if (!state) {
@@ -22,13 +25,20 @@ const updateSpring = (spring, modifier, state = true) => {
   spring.start(modifier);
 };
 
+const Color = require("color");
+
 const Content = () => {
   const colorRef = useRef();
   const mainContext = useContext(MainContext);
   const [toggleMouse, setToggleMouse] = useState(false);
   const [colorOpen, setColorOpen] = useState(false);
+
+  const defaultNotification = { text: "", icon: faCircle };
+
+  const [notification, setNotification] = useState(defaultNotification);
+  const [notificationOpen, setNotificationOpen] = useState(false);
   const [colorEnabled, setColorEnabled] = useState(false);
-  const [color, setColor] = useState("#fff");
+  const [color, setColor] = useState("#000000");
   const [contentSpring, contentSpringApi] = useSpring(() => ({
     config: {
       friction: 25,
@@ -76,15 +86,60 @@ const Content = () => {
   }));
 
   const mouseCircleTransition = useTransition(toggleMouse, {
-    from: { opacity: 0 },
-    enter: { opacity: 1 },
-    leave: { opacity: 0 },
+    from: { opacity: 0, scale: 0.2, rotateZ: -90 },
+    enter: { opacity: 1, scale: 1, rotateZ: 0 },
+    leave: { opacity: 0, scale: 0.2, rotateZ: 90 },
   });
 
+  const [notificationSpring, notificationSpringApi] = useSpring(() => ({
+    reset: true,
+    opacity: 0,
+    y: 0,
+  }));
+
+  const colorApi = Color(color);
+
   useEffect(() => {
-    mainContext.confirmed &&
-      contentSpringApi.start({ opacity: 1, scale: 1.05 });
+    mainContext.confirmed && toggleMouse
+      ? updateSpring(contentSpringApi, { opacity: 1, scale: 1.1 })
+      : updateSpring(contentSpringApi, { opacity: 1, scale: 1.3 });
   }, [mainContext.confirmed]);
+
+  useEffect(() => {
+    if (notification.text === "") {
+      return;
+    }
+    setNotificationOpen(true);
+    const delay = setTimeout(() => {
+      setNotificationOpen(false);
+    }, 1000);
+    return () => clearTimeout(delay);
+  }, [notification]);
+
+  useEffect(() => {
+    notificationOpen
+      ? updateSpring(notificationSpringApi, {
+          from: {
+            opacity: 0,
+            y: -200,
+          },
+          to: {
+            opacity: 1,
+            y: 30,
+          },
+        })
+      : updateSpring(notificationSpringApi, {
+          from: {
+            opacity: 1,
+            y: 30,
+          },
+          to: {
+            opacity: 0,
+            y: -200,
+          },
+          onRest: () => setNotification({ text: "", icon: faCircle }),
+        });
+  }, [notificationOpen]);
 
   const colorWindowHandler = () => {
     if (!colorOpen) {
@@ -108,9 +163,11 @@ const Content = () => {
         config: { friction: 30 },
         scale: 1.4,
         x: 70,
-        rotateZ: 90,
+        rotateZ: 360,
       });
     } else {
+      window.localStorage.setItem("color", color);
+      setNotification({ text: "Color settings saved!", icon: faPencil });
       setColorEnabled(false);
       updateSpring(colorWindowSpringApi, {
         config: {
@@ -138,38 +195,51 @@ const Content = () => {
 
   useEffect(() => {
     const ls = window.localStorage;
-    if (!toggleMouse) {
-      // TODO: figure out how to get the fucking mouse toggle persistent
-      window.localStorage.setItem("toggleMouse", false);
-      contentSpringApi.start({ scale: 1.1 });
-      setColor(ls.getItem("color", color));
-      let x = 0;
-      const scalar = 0.05;
+    if (!toggleMouse || !ls.getItem("toggleMouse")) {
+      contentSpringApi.start({ scale: 1.3 });
+      const scalar = 2 * 10 ** -4;
       const interval = setInterval(() => {
-        x += 1;
-        const y = Math.sin(x * scalar);
-        console.log(y);
-        contentSpringApi.start({ x: y * 8 ** 2, y: y * 20 });
+        const x = new Date().getTime();
+        contentSpringApi.start({
+          x: Math.cos(x * scalar) * 12 ** 2,
+          y: Math.sin(x * scalar) * 8 ** 2,
+        });
       }, 100);
       return () => clearInterval(interval);
-    } else {
-      window.localStorage.setItem("toggleMouse", true);
     }
   }, [toggleMouse]);
 
   useEffect(() => {
-    if (color === "#fff") {
-      return;
-    }
-    window.localStorage.setItem("color", color);
-  }, [color]);
+    const ls = window.localStorage;
+    ls.getItem("toggleMouse") === "true"
+      ? setToggleMouse(true)
+      : setToggleMouse(false);
+    setColor(ls.getItem("color"));
+  }, []);
 
   const mouseWindowHandler = () => {
     if (!toggleMouse) {
+      updateSpring(contentSpringApi, { scale: 1.1, x: 0, y: 0 });
+      window.localStorage.setItem("toggleMouse", true);
       setToggleMouse(true);
     } else {
+      window.localStorage.setItem("toggleMouse", false);
       setToggleMouse(false);
     }
+  };
+
+  const buttonStyle = {
+    backgroundColor: colorApi.alpha(0.5),
+    color:
+      colorApi.luminosity() === 1
+        ? colorApi.darken(1)
+        : colorApi.isDark()
+        ? colorApi.lightness(50)
+        : colorApi.isLight() && colorApi.darken(0.9),
+  };
+
+  const iconStyle = {
+    color: colorApi.lightness(80),
   };
 
   return (
@@ -178,10 +248,10 @@ const Content = () => {
         style={{
           ...contentSpring,
           boxShadow: `inset 0 0 250px ${color}20`,
-          top: "-10%",
-          left: "-20%",
+          top: "0",
+          left: "0",
         }}
-        className={`fixed w-[120%] h-[120%]`}>
+        className={`fixed w-screen h-screen`}>
         <BackgroundSVG color={color} />
       </a.div>
       {mainContext.confirmed && (
@@ -201,6 +271,15 @@ const Content = () => {
             updateSpring(contentSpringApi, { scale: 1, x: 0, y: 0 })
           }
           className="w-full h-full absolute">
+          {notification !== defaultNotification && (
+            <a.div style={notificationSpring}>
+              <Notification
+                color={color}
+                text={notification.text}
+                icon={notification.icon}
+              />
+            </a.div>
+          )}
           <div className="absolute bottom-0 mx-12 my-12">
             {colorOpen && (
               <>
@@ -241,7 +320,11 @@ const Content = () => {
               onMouseLeave={() =>
                 updateSpring(mouseCircleSpringApi, { scale: 1 })
               }
-              style={{ backgroundColor: `${color}20`, ...mouseCircleSpring }}
+              style={{
+                ...mouseCircleSpring,
+                ...buttonStyle,
+                ...iconStyle,
+              }}
               onClick={mouseWindowHandler}
               className="rounded-full w-12 h-12 block my-4 backdrop-blur-lg">
               {mouseCircleTransition((style, i) => (
@@ -249,7 +332,6 @@ const Content = () => {
                   style={style}
                   className="grid text-center items-center content-center justify-center h-0">
                   <FontAwesomeIcon
-                    color={rgbToHex("rgb(200,200,200)")}
                     icon={i ? faComputerMouse : faClockRotateLeft}
                   />
                 </a.span>
@@ -262,13 +344,10 @@ const Content = () => {
               onMouseLeave={() =>
                 updateSpring(colorCircleSpringApi, { scale: 1 })
               }
-              style={{ backgroundColor: `${color}20`, ...colorCircleSpring }}
+              style={{ ...buttonStyle, ...colorCircleSpring, ...iconStyle }}
               onClick={colorWindowHandler}
               className="rounded-full w-12 h-12 backdrop-blur-lg">
-              <FontAwesomeIcon
-                color={rgbToHex("rgb(200,200,200)")}
-                icon={faPaintbrush}
-              />
+              <FontAwesomeIcon icon={faPaintbrush} />
             </a.button>
           </div>
         </div>

@@ -14,7 +14,7 @@ const Main = () => {
     <>
       <MainContext.Provider
         value={{ loaded, setLoaded, confirmed, setConfirmed }}>
-        <div className="bg-black w-full h-full absolute -z-[100]">
+        <div className="bg-black absolute -z-[100] w-screen h-screen">
           <Load />
           <Warning />
           <Content />
