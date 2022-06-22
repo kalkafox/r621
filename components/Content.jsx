@@ -1,10 +1,8 @@
 import { useContext, useEffect, useState, useRef } from "react";
 import { MainContext } from "./Contexts";
-import bgImg from "/public/bg/webb-dark.png";
 import { useSpring, useTransition, animated as a } from "react-spring";
 import { HexColorPicker } from "react-colorful";
 import BackgroundSVG from "./BackgroundSVG";
-import reactCSS from "reactcss";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -37,6 +35,7 @@ const Content = () => {
 
   const [notification, setNotification] = useState(defaultNotification);
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notificationOpened, setNotificationOpened] = useState(false);
   const [colorEnabled, setColorEnabled] = useState(false);
   const [color, setColor] = useState("#000000");
   const [contentSpring, contentSpringApi] = useSpring(() => ({
@@ -106,40 +105,38 @@ const Content = () => {
   }, [mainContext.confirmed]);
 
   useEffect(() => {
-    if (notification.text === "") {
-      return;
+    if (notification.text !== "") {
+      setNotificationOpened(true);
+      updateSpring(notificationSpringApi, {
+        from: {
+          opacity: 0,
+          y: -200,
+        },
+        to: {
+          opacity: 1,
+          y: 30,
+        },
+      });
+      const delay = setTimeout(() => {
+        updateSpring(notificationSpringApi, {
+          from: {
+            opacity: 1,
+            y: 30,
+          },
+          to: {
+            opacity: 0,
+            y: -200,
+          },
+          onRest: () => setNotificationOpened(false),
+        });
+      }, 3000);
+      return () => clearTimeout(delay);
     }
-    setNotificationOpen(true);
-    const delay = setTimeout(() => {
-      setNotificationOpen(false);
-    }, 1000);
-    return () => clearTimeout(delay);
-  }, [notification]);
+  }, [notificationOpen, notification]);
 
   useEffect(() => {
-    notificationOpen
-      ? updateSpring(notificationSpringApi, {
-          from: {
-            opacity: 0,
-            y: -200,
-          },
-          to: {
-            opacity: 1,
-            y: 30,
-          },
-        })
-      : updateSpring(notificationSpringApi, {
-          from: {
-            opacity: 1,
-            y: 30,
-          },
-          to: {
-            opacity: 0,
-            y: -200,
-          },
-          onRest: () => setNotification({ text: "", icon: faCircle }),
-        });
-  }, [notificationOpen]);
+    setNotificationOpen(true);
+  }, [notification]);
 
   const colorWindowHandler = () => {
     if (!colorOpen) {
@@ -271,8 +268,8 @@ const Content = () => {
             updateSpring(contentSpringApi, { scale: 1, x: 0, y: 0 })
           }
           className="w-full h-full absolute">
-          {notification !== defaultNotification && (
-            <a.div style={notificationSpring}>
+          {notificationOpened && (
+            <a.div className="fixed w-[800px] z-50" style={notificationSpring}>
               <Notification
                 color={color}
                 text={notification.text}
@@ -280,6 +277,11 @@ const Content = () => {
               />
             </a.div>
           )}
+          <div className="grid text-center items-center justify-items-center content-center justify-center h-full">
+            <div className="h-0 absolute top-0">
+              <img src="https://www.w3schools.com/html/img_girl.jpg" alt="" />
+            </div>
+          </div>
           <div className="absolute bottom-0 mx-12 my-12">
             {colorOpen && (
               <>
