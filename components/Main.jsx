@@ -9,12 +9,23 @@ import { useState } from "react";
 const Main = () => {
   const [loaded, setLoaded] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [primed, setPrimed] = useState(true);
+  const [request, setRequest] = useState(false);
 
   return (
     <>
       <MainContext.Provider
-        value={{ loaded, setLoaded, confirmed, setConfirmed }}>
-        <div className="bg-black absolute -z-[100] w-screen h-screen">
+        value={{
+          loaded,
+          setLoaded,
+          confirmed,
+          setConfirmed,
+          primed,
+          setPrimed,
+          request,
+          setRequest,
+        }}>
+        <div className="bg-black fixed -z-[100] w-screen h-screen">
           <Load />
           <Warning />
           <Content />

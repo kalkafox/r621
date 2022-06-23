@@ -3,8 +3,11 @@ import { MainContext } from "./Contexts";
 import { useSpring, useTransition, animated as a } from "react-spring";
 import { HexColorPicker } from "react-colorful";
 import BackgroundSVG from "./BackgroundSVG";
+import R621Image from "./R621Image";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import { updateSpring } from "./Util";
 
 import {
   faPaintbrush,
@@ -12,16 +15,11 @@ import {
   faClockRotateLeft,
   faCircle,
   faPencil,
+  faArrowRotateRight,
+  faPaw,
 } from "@fortawesome/free-solid-svg-icons";
 import { LinearProgress, rgbToHex } from "@mui/material";
 import Notification from "./Notification";
-
-const updateSpring = (spring, modifier, state = true) => {
-  if (!state) {
-    return;
-  }
-  spring.start(modifier);
-};
 
 const Color = require("color");
 
@@ -30,6 +28,10 @@ const Content = () => {
   const mainContext = useContext(MainContext);
   const [toggleMouse, setToggleMouse] = useState(false);
   const [colorOpen, setColorOpen] = useState(false);
+
+  const defaultReloadIcons = [faPaw, faArrowRotateRight];
+
+  const [imageReloadIcon, setImageReloadIcon] = useState(defaultReloadIcons[1]);
 
   const defaultNotification = { text: "", icon: faCircle };
 
@@ -72,6 +74,7 @@ const Content = () => {
     opacity: 1,
     x: 0,
     rotateZ: 0,
+    marginTop: 0,
   }));
 
   const [mouseCircleSpring, mouseCircleSpringApi] = useSpring(() => ({
@@ -83,6 +86,18 @@ const Content = () => {
     x: 0,
     rotateZ: 0,
   }));
+
+  const [imageReloadSpring, imageReloadSpringApi] = useSpring(() => ({
+    config: {
+      friction: 10,
+    },
+  }));
+
+  const imageReloadTransition = useTransition(imageReloadIcon, {
+    from: { opacity: 0, scale: 0.2, rotateZ: -90 },
+    enter: { opacity: 1, scale: 1, rotateZ: 0 },
+    leave: { opacity: 0, scale: 0.2, rotateZ: 90 },
+  });
 
   const mouseCircleTransition = useTransition(toggleMouse, {
     from: { opacity: 0, scale: 0.2, rotateZ: -90 },
@@ -141,6 +156,7 @@ const Content = () => {
   const colorWindowHandler = () => {
     if (!colorOpen) {
       setColorOpen(true);
+      setColorEnabled(false);
       updateSpring(colorWindowSpringApi, {
         config: {
           friction: 10,
@@ -161,6 +177,7 @@ const Content = () => {
         scale: 1.4,
         x: 70,
         rotateZ: 360,
+        marginTop: 250,
       });
     } else {
       window.localStorage.setItem("color", color);
@@ -186,6 +203,7 @@ const Content = () => {
         scale: 1,
         x: 0,
         rotateZ: 0,
+        marginTop: 0,
       });
     }
   };
@@ -194,12 +212,12 @@ const Content = () => {
     const ls = window.localStorage;
     if (!toggleMouse || !ls.getItem("toggleMouse")) {
       contentSpringApi.start({ scale: 1.3 });
-      const scalar = 2 * 10 ** -4;
+      const scalar = 5 * 10 ** -4;
       const interval = setInterval(() => {
         const x = new Date().getTime();
         contentSpringApi.start({
           x: Math.cos(x * scalar) * 8 ** 2,
-          y: Math.sin(x * scalar) * 8 ** 2,
+          y: Math.sin(x * scalar) * 4 ** 2,
         });
       }, 100);
       return () => clearInterval(interval);
@@ -211,6 +229,7 @@ const Content = () => {
     ls.getItem("toggleMouse") === "true"
       ? setToggleMouse(true)
       : setToggleMouse(false);
+    !ls.getItem("color") && ls.setItem("color", "#000000");
     setColor(ls.getItem("color"));
   }, []);
 
@@ -238,6 +257,24 @@ const Content = () => {
   const iconStyle = {
     color: colorApi.lightness(80),
   };
+
+  const reloadImageHandler = () => {
+    mainContext.setRequest(true);
+  };
+
+  useEffect(() => {
+    if (mainContext.request) {
+      mainContext.setPrimed(false);
+    }
+  }, [mainContext.request]);
+
+  useEffect(() => {
+    if (mainContext.primed) {
+      setImageReloadIcon(defaultReloadIcons[0]);
+    } else {
+      setImageReloadIcon(defaultReloadIcons[1]);
+    }
+  }, [mainContext.primed]);
 
   return (
     <>
@@ -277,17 +314,64 @@ const Content = () => {
               />
             </a.div>
           )}
-          <div className="grid text-center items-center justify-items-center content-center justify-center h-full">
-            <div className="h-0 absolute top-0">porn goes here lul</div>
-          </div>
+          <R621Image props={{ color, colorApi }} />
           <div className="absolute bottom-0 mx-12 my-12">
+            <a.button
+              onMouseEnter={() =>
+                updateSpring(imageReloadSpringApi, { scale: 1.2 })
+              }
+              onMouseLeave={() =>
+                updateSpring(imageReloadSpringApi, { scale: 1 })
+              }
+              style={{
+                ...imageReloadSpring,
+                ...buttonStyle,
+                ...iconStyle,
+              }}
+              disabled={!mainContext.primed}
+              onClick={reloadImageHandler}
+              className="rounded-full w-12 h-12 block my-4 backdrop-blur-lg">
+              {imageReloadTransition((style, i) => (
+                <a.span
+                  style={style}
+                  className={`grid text-center items-center content-center justify-center h-0 ${
+                    !mainContext.primed && "fa-spin"
+                  }`}>
+                  <FontAwesomeIcon icon={i} />
+                </a.span>
+              ))}
+            </a.button>
+            <a.button
+              onMouseEnter={() =>
+                updateSpring(mouseCircleSpringApi, { scale: 1.2 })
+              }
+              onMouseLeave={() =>
+                updateSpring(mouseCircleSpringApi, { scale: 1 })
+              }
+              style={{
+                ...mouseCircleSpring,
+                ...buttonStyle,
+                ...iconStyle,
+              }}
+              onClick={mouseWindowHandler}
+              className="rounded-full w-12 h-12 block my-4 backdrop-blur-lg">
+              {mouseCircleTransition((style, i) => (
+                <a.span
+                  style={style}
+                  className="grid text-center items-center content-center justify-center h-0">
+                  <FontAwesomeIcon
+                    icon={i ? faComputerMouse : faClockRotateLeft}
+                  />
+                </a.span>
+              ))}
+            </a.button>
             {colorOpen && (
               <>
                 <a.div
                   style={colorWindowBlurSpring}
                   className="backdrop-blur-lg backdrop-saturate-150 w-full h-[12.5rem] rounded-lg absolute my-8"></a.div>
                 <a.div
-                  className="my-8"
+                  className="my-8 absolute bottom-12"
                   style={colorWindowSpring}
                   onMouseEnter={() => {
                     updateSpring(
@@ -313,30 +397,6 @@ const Content = () => {
                 </a.div>
               </>
             )}
-            <a.button
-              onMouseEnter={() =>
-                updateSpring(mouseCircleSpringApi, { scale: 1.2 })
-              }
-              onMouseLeave={() =>
-                updateSpring(mouseCircleSpringApi, { scale: 1 })
-              }
-              style={{
-                ...mouseCircleSpring,
-                ...buttonStyle,
-                ...iconStyle,
-              }}
-              onClick={mouseWindowHandler}
-              className="rounded-full w-12 h-12 block my-4 backdrop-blur-lg">
-              {mouseCircleTransition((style, i) => (
-                <a.span
-                  style={style}
-                  className="grid text-center items-center content-center justify-center h-0">
-                  <FontAwesomeIcon
-                    icon={i ? faComputerMouse : faClockRotateLeft}
-                  />
-                </a.span>
-              ))}
-            </a.button>
             <a.button
               onMouseEnter={() =>
                 updateSpring(colorCircleSpringApi, { scale: 1.2 })

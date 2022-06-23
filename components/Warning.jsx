@@ -82,8 +82,8 @@ const Warning = () => {
             updateSpring(warningBoxSpringApi, { scale: 1.05 })
           }
           onMouseLeave={() => updateSpring(warningBoxSpringApi, { scale: 1 })}
-          className="absolute top-20 text-white bg-slate-800 px-8 py-2 lg:w-10/12 portrait:w-10/12 sm:w-10/12 rounded-2xl text-center w-content break-words font-[Poppins]">
-          <div className="lg:text-6xl sm:text-3xl portrait:text-4xl w-content bg-black w-4/5 m-auto p-8 rounded-3xl">
+          className="absolute top-2 text-white bg-slate-800 px-8 py-2 lg:w-10/12 portrait:w-12/12 sm:w-10/12 rounded-2xl text-center w-content break-words font-[Poppins]">
+          <div className="lg:text-6xl sm:text-3xl portrait:text-2xl w-content bg-black portrait:w-full w-4/5 m-auto p-8 rounded-3xl">
             <FontAwesomeIcon icon={faCircleExclamation} /> Hold up a second!
           </div>
           <div className="py-8 lg:text-2xl">
@@ -101,7 +101,7 @@ const Warning = () => {
               area to access the content mentioned above, please confirm below.
             </p>
           </div>
-          <div className="portrait:space-x-8 lg:space-x-48 sm:space-x-12 md:space-x-8 py-8 text-2xl">
+          <div className="portrait:space-x-8 portrait:text-sm lg:space-x-48 sm:space-x-12 md:space-x-8 py-8 text-2xl">
             <a.button
               style={agreeSpring}
               onMouseEnter={() => {
@@ -123,7 +123,7 @@ const Warning = () => {
               onClick={() => {
                 acceptTerms();
               }}
-              className="bg-slate-900 p-4 px-12 rounded-3xl">
+              className="bg-slate-900 p-4 rounded-3xl">
               <span className="right-8 relative">
                 {buttonTransition((style, i) => (
                   <a.div style={style} className="inline absolute">
