@@ -19,7 +19,7 @@ export const getImageFromDatabase = async () => {
   while (
     post == null ||
     post.length === 0 ||
-    post[0].file.type === "webm" ||
+    post[0].file.ext === ("webm" || "swf") ||
     post[0].file.url == null
   ) {
     console.log("retrying...");

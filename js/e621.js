@@ -40,12 +40,12 @@ export const pollData = async (tags) => {
 
   const timestamp = new Date().getTime();
   console.log(timestamp);
-  if (timestamp > time.time) {
-    console.log("yote3");
+  if (timestamp > time) {
+    console.log(`Time difference: ${timestamp - time / 1000}`);
     return;
-  } else {
-    await mongo.setTime({ time: timestamp + 300 });
   }
+
+  await mongo.setTime({ time: timestamp + 300 });
 
   const client = await mongo.getClient();
 

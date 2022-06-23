@@ -5,7 +5,7 @@ import Image from "next/image";
 
 import { animated as a, useSpring } from "react-spring";
 
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Radio } from "@mui/material";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -37,6 +37,8 @@ const R621Image = (data) => {
     config: { friction: 10 },
     scale: 0.8,
     opacity: 0,
+    x: 0,
+    y: 0,
   }));
 
   const fetchImage = async () => {
@@ -112,13 +114,14 @@ const R621Image = (data) => {
   useEffect(() => {
     if (mainContext.primed || mainContext.request) {
       mainContext.setRequest(false);
-      setLoaded(false);
       setProgress(0);
       updateSpring(circularSpringApi, { scale: 1, opacity: 1, rotateZ: 0 });
       updateSpring(imageSpringApi, {
         scale: 0.8,
         opacity: 0,
-        onRest: () => setImageReady(false),
+        onRest: () => {
+          !primed && setImageReady(false);
+        },
       });
       fetchImage();
     }
@@ -169,6 +172,27 @@ const R621Image = (data) => {
     }
   }, [loaded, fired]);
 
+  let scale = 0;
+
+  const imageWheelHandler = (e) => {
+    scale += -e.deltaY * 0.0005;
+    scale = Math.min(Math.max(scale, 0.9), 3);
+    console.log(e);
+    updateSpring(imageSpringApi, {
+      x: -e.pageX / 8,
+      y: -e.pageY / 8,
+      scale: scale,
+    });
+  };
+
+  const imageDragStart = (e) => {
+    console.log(e);
+    updateSpring(imageSpringApi, {
+      x: -e.clientX,
+      y: -e.clientY,
+    });
+  };
+
   return (
     <>
       <div>
@@ -205,10 +229,19 @@ const R621Image = (data) => {
           </a.span>
         </div>
       </div>
-      {(imageReady || loaded) && (
+      {imageReady && loaded && (
         <a.div
           className="fixed m-auto left-0 right-0 top-20"
           onMouseEnter={() => updateSpring(imageSpringApi, { scale: 1.1 })}
+          onMouseLeave={() =>
+            updateSpring(imageSpringApi, { scale: 1, x: 0, y: 0 })
+          }
+          onWheel={(e) => {
+            imageWheelHandler(e);
+          }}
+          onDragOver={(e) => {
+            imageDragStart(e);
+          }}
           onLoad={() => loadHandler()}
           style={{
             width: ratio.width,
