@@ -10,7 +10,7 @@ export const appRouter = router({
     .input(z.string().optional())
     .query(async({input}) => {
       const formatted_tags = input?.replace(/ /g, "+") ?? ""
-      const url = `https://e621.net/posts.json?limit=1&tags=order:random+m/m+score:>20+${formatted_tags}`
+      const url = `https://e621.net/posts.json?limit=1&tags=canine+-cub+order:random+m/m+score:>100+${formatted_tags}`
       const response = await fetch(url, {
         headers: {
           'User-Agent': 'trpc-nextjs-e621 (by kalka)',

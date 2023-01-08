@@ -107,7 +107,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/font@npm:13.1.1":
+"@next/font@npm:^13.1.1":
   version: 13.1.1
   resolution: "@next/font@npm:13.1.1"
   checksum: 468a77d3a6db4a95ece3cc99c28dcaaf6135354ad81c3954a08a6c7d977693d7b7f07ff835b972a80d25794b711d6cb6545ea55fe6bed4c624346f3524061d19
@@ -3319,7 +3319,7 @@ __metadata:
   resolution: "r621@workspace:."
   dependencies:
     "@iconify/react": ^4.0.1
-    "@next/font": 13.1.1
+    "@next/font": ^13.1.1
     "@prisma/client": ^4.8.1
     "@react-spring/web": ^9.6.1
     "@tanstack/react-query": ^4.20.9
@@ -3339,6 +3339,7 @@ __metadata:
     prisma: ^4.8.1
     react: 18.2.0
     react-dom: 18.2.0
+    react-hook-form: ^7.41.5
     react-spinners: ^0.13.7
     tailwindcss: ^3.2.4
     typescript: 4.9.4
@@ -3355,6 +3356,15 @@ __metadata:
   peerDependencies:
     react: ^18.2.0
   checksum: 7d323310bea3a91be2965f9468d552f201b1c27891e45ddc2d6b8f717680c95a75ae0bc1e3f5cf41472446a2589a75aed4483aee8169287909fcd59ad149e8cc
+  languageName: node
+  linkType: hard
+
+"react-hook-form@npm:^7.41.5":
+  version: 7.41.5
+  resolution: "react-hook-form@npm:7.41.5"
+  peerDependencies:
+    react: ^16.8.0 || ^17 || ^18
+  checksum: ca28b2deb4fdbf120ff726f4d66366711725df03b677f52b2577a69bf761e409644bf06b8342dbc2dd5cdfdb05efecdbc2361799f405a35d65911fd0b4d8bdde
   languageName: node
   linkType: hard
 
