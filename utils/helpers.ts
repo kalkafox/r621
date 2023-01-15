@@ -8,8 +8,7 @@ export function resize(width: number, height: number) {
   if (imageRatio > windowRatio) {
     width = windowWidth
     height = width / imageRatio
-  }
-  else {
+  } else {
     height = windowHeight
     width = height * imageRatio
   }
