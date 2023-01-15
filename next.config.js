@@ -8,11 +8,10 @@ const nextConfig = {
     webpack5: true,
   },
   experimental: {
-    optimizeFonts: true,
-    optimizeImages: true,
     optimizeCss: true,
     scrollRestoration: true,
-    sprFlushToDisk: false,
+    workerThreads: true,
+    nextScriptWorkers: true,
   },
 
   // images

@@ -5,7 +5,6 @@ export default trpcNext.createNextApiHandler({
   router: appRouter,
 
   createContext: async (ctx) => {
-    console.log("this happened")
     return {
       req: ctx.req,
       res: ctx.res,

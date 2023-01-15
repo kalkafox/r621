@@ -50,6 +50,7 @@ const Index = () => {
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
+    enabled: false,
   })
 
   const [imageSpring, setImageSpring] = useSpring(() => ({
@@ -100,13 +101,16 @@ const Index = () => {
 
   useEffect(() => {
     const onResize = () => {
+      if (!ready) {
+        return
+      }
       if (window.innerHeight < 300 || window.innerWidth < 500) {
         return
       }
 
       const { width, height } = resize(
-        imageQuery.data.posts[0].file.width,
-        imageQuery.data.posts[0].file.height,
+        imageQuery.data?.posts?.[0].file.width,
+        imageQuery.data?.posts?.[0].file.height,
       )
 
       if (imageRef.current) {
@@ -136,7 +140,7 @@ const Index = () => {
         imageQuery.refetch()
       }
 
-      if (imageQuery.data && !imageQuery.data.posts[0]) {
+      if (imageQuery.data && !imageQuery.data?.posts[0]) {
         alert('No image found. Please retry the search.')
         setTagsInput('')
         setTags('')
@@ -149,9 +153,13 @@ const Index = () => {
       window.removeEventListener('resize', onResize)
       clearTimeout(timeout)
     }
-  }, [imageQuery, setImageSpring])
+  }, [imageQuery, setImageSpring, ready])
 
   useEffect(() => {
+    if (ready && !imageQuery.data) {
+      imageQuery.refetch()
+      return
+    }
     if (
       (!imageQuery.data && !imageQuery.data) ||
       !imageQuery.data.posts[0] ||
@@ -172,6 +180,7 @@ const Index = () => {
         return
       case 'mp4':
         imageQuery.refetch()
+        return
       case 'webm':
         setImageSpring.start({ scale: 1, opacity: 1 })
         setLoading(false)
@@ -179,12 +188,8 @@ const Index = () => {
           videoRef.current.src = imageQuery.data.posts[0].file.url
           videoRef.current.play()
         }
+        break
     }
-
-    console.log(
-      'imageQuery.data.posts[0].file.url',
-      imageQuery.data.posts[0].file.url,
-    )
 
     const { width, height } = resize(
       imageQuery.data.posts[0].file.width,
@@ -206,7 +211,7 @@ const Index = () => {
     }
 
     setImageSpring.start({ width: width, height: height })
-  }, [imageQuery.data])
+  }, [imageQuery.data, setImageSpring, ready])
 
   useEffect(() => {
     const { tags } = router.query

@@ -24,6 +24,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@builder.io/partytown@npm:^0.7.4":
+  version: 0.7.4
+  resolution: "@builder.io/partytown@npm:0.7.4"
+  bin:
+    partytown: bin/partytown.cjs
+  checksum: b731f89a909343e7e12e9569f8d3ca24a6ac0ba266dadff2f8061d1a9e4b2a38c3fa6d28a870bffe04f7cc17a1e90d248437b967b9e3e35a8cb29b859f3c0161
+  languageName: node
+  linkType: hard
+
 "@eslint/eslintrc@npm:^1.4.1":
   version: 1.4.1
   resolution: "@eslint/eslintrc@npm:1.4.1"
@@ -3334,6 +3343,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "r621@workspace:."
   dependencies:
+    "@builder.io/partytown": ^0.7.4
     "@iconify/react": ^4.0.1
     "@next/font": ^13.1.1
     "@prisma/client": ^4.8.1
