@@ -25,7 +25,7 @@
     "autoprefixer": "^10.4.13",
     "critters": "^0.0.16",
     "eslint": "8.31.0",
-    "eslint-config-next": "13.1.1",
+    "eslint-config-next": "15.0.0",
     "next": "13.1.1",
     "postcss": "^8.4.20",
     "prisma": "^4.8.1",
